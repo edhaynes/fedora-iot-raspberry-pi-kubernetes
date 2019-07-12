@@ -82,14 +82,23 @@ Nmap done: 256 IP addresses (5 hosts up) scanned in 2.73 seconds
 Figure out the mac addressses of the raspberry pis to populate dhcp server configuration
 
 [ehaynes@new-host-3 ~]$ arp -a
+
 kube1 (10.0.100.61) at b8:27:eb:8f:6c:64 [ether] on enp0s20f0u5u3u1
+
 kube4 (10.0.100.64) at b8:27:eb:42:a2:fe [ether] on enp0s20f0u5u3u1
+
 IP-STB2.home (192.168.1.100) at 3c:df:a9:a2:c1:01 [ether] on enp0s31f6
+
 _gateway (192.168.2.1) at 1c:87:2c:4a:11:18 [ether] on wlp3s0
+
 kube3 (10.0.100.63) at b8:27:eb:1e:9b:84 [ether] on enp0s20f0u5u3u1
+
 IP-STB1.home (192.168.1.101) at 3c:df:a9:65:1e:98 [ether] on enp0s31f6
+
 kube2 (10.0.100.62) at b8:27:eb:5b:1f:e8 [ether] on enp0s20f0u5u3u1
+
 Wireless_Broadband_Router.home (192.168.1.1) at 00:7f:28:5f:69:77 [ether] on enp0s31f6
+
 
 
 now edit the dhcpd.conf to put the appropriate mac values in.  you should shutdown the pis, reboot dhcpd, and flush your arp cache.  Now that we know the macs of the PIs we can statically set the addresses in dhcpd.conf like below:
@@ -131,21 +140,34 @@ cat /etc/hosts
 
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
 10.0.100.61 kube1
+
 10.0.100.62 kube2
+
 10.0.100.63 kube3
+
 10.0.100.64 kube4
+
 
 and i set up a file I called inventory to use with ad-hoc ansible commands
 cat inventory 
 
+
 [pis]
+
 kube1
+
 kube2
+
 kube3
+
 kube4
+
 [pis:vars]
+
 ansible_ssh_user=pi
+
 
 
 Configuring Fedora IOT: 
@@ -161,18 +183,32 @@ sudo dnf install arm-image-installer
 insert microssd into reader.   use lkblk to figure out which disk it is.  note in my case it happens the 32G microssd is /dev/sda which often is the system disk in linux… be careful you target the correct disk so you don’t wipe your system.
 
 ehaynes@new-host-3 fedora_iot]$ lsblk
+
 NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+
 sda           8:0    1  29.8G  0 disk 
+
 ├─sda1        8:1    1   142M  0 part /run/media/ehaynes/F02A-29CE
+
 ├─sda2        8:2    1     1G  0 part /run/media/ehaynes/76d84759-c70c-4ed6-ae42
+
 └─sda3        8:3    1  28.7G  0 part /run/media/ehaynes/96db2e6f-4327-4c2f-aa62
+
 nvme0n1     259:0    0 953.9G  0 disk 
+
 ├─nvme0n1p1 259:1    0   499M  0 part 
+
 ├─nvme0n1p2 259:2    0    99M  0 part /boot/efi
+
 ├─nvme0n1p3 259:3    0    16M  0 part 
+
 ├─nvme0n1p4 259:4    0   758G  0 part 
+
 ├─nvme0n1p5 259:5    0 163.4G  0 part /
+
 └─nvme0n1p6 259:6    0    32G  0 part [SWAP]
+
+
 
 unmount any partitions on the disk
 sudo umount /dev/sda1
@@ -195,13 +231,21 @@ install your ssh key
 ansible-playbook -i inventory copy_ssh_keys_to_pis.yml  -u ehaynes -k
 
 cat copy_ssh_keys_to_pis.yml 
+
 ---
+
 - hosts: all
+
   tasks:
+  
     - authorized_key:
+    
         user: pi
+        
         state: present
+        
         key: "{{ lookup('file', '/home/ehaynes/.ssh/id_rsa.pub') }}"
+        
 
 
 here is stuff to install to resolve dependencies - unfortunately it seems ansible doesn’t have an rpm-ostree module yet
