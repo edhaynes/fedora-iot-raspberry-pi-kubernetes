@@ -12,4 +12,4 @@
     - shell:
         ~pi/.local/bin/blinkstick green
       become: yes
-
+#note you have to reboot for the --add-udev-rule to apply.  this will allow you to control the blinksticks without root priv
