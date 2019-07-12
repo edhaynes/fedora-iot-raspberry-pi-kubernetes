@@ -98,10 +98,13 @@ now edit the dhcpd.conf to put the appropriate mac values in.  you should shutdo
 Dhcpd.conf: 
 
 subnet 10.0.100.0 netmask 255.255.255.0 {  
+
   range 10.0.100.2 10.0.100.200;
 
   option domain-name-servers 8.8.8.8, 8.8.4.4;
+  
   option routers 10.0.100.1;
+  
 }
 
 host kube1 {
@@ -243,6 +246,7 @@ cat copy_ssh_keys_to_pis.yml
 here is stuff to install to resolve dependencies - unfortunately it seems ansible doesn’t have an rpm-ostree module yet
 
 sudo rpm-ostree update
+
 sudo rpm-ostree install python python-pip kubernetes-kubeadm docker ethtool tc
 
 Note that once you start running kube master SELinux warning “SELInux: mount invalid.” is a benign warning.  A bug has been filed.
@@ -250,36 +254,55 @@ Note that once you start running kube master SELinux warning “SELInux: mount i
 Kubernetes doesn’t like swap for some reason.  
  
 sudo systemctl stop zram-swap.service
+
 sudo systemctl disable zram-swap.service
 
+
 Kubernetes also wants ip forwarding turned on
+
 sysctl -w net.ipv4.ip_forward=1
 
 
 Start some stuff kubernetes wants to see to install master & nodes
 
 systemctl enable kubelet.service
+
 systemctl start kubelet.service
+
 systemctl start docker.service
+
 systemctl enable docker.serice
 
+
 Enable ports for the API
+
 sudo firewall-cmd --add-port=6443/tcp --permanent
+
 sudo firewall-cmd --add-port=10250/tcp --permanent
 
+
 Install API for my blinkstick nano USB device
+
 pip install blinkstick --user
+
 sudo ~/.local/bin/blinkstick --add-udev-rule 
+
 
 then reboot for udev-rule to take effect
 
+
 Test Led
+
 blinkstick --pulse red
 
 edit /etc/hosts on the 4 pis to reflect the following:
+
 10.0.100.61 kube1
+
 10.0.100.62 kube2
+
 10.0.100.63 kube3
+
 10.0.100.64 kube4
 
 
@@ -295,23 +318,39 @@ sudo kubeadm init --ignore-preflight-errors=all
 
 So the default timeout is too short for raspberry pi’s cpu to get everything done.  I don’t think there is a way to change timeout from commandline, and the kube-apiserver.yaml file hasn’t been created yet to edit … so after running kubeadm init in another window as root I repeatedly executed this command until i did not get the “file not found” editing kube-apiserver.yaml soon after it’s created… this allowed kubeadm init to finish lol.   There is a better way I’m sure.
 
+
 sed -i 's/initialDelaySeconds: [0-9]\+/initialDelaySeconds: 180/' /etc/kubernetes/manifests/kube-apiserver.yaml
+
 Then I follow the instructions kubeadm init gives you:
+
 mkdir -p $HOME/.kube
+
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
 kubectl apply --filename https://git.io/weave-kube-1.6
+
 assuming things go well the output will be to give the kubeadm join command like below.  Make sure to copy it as it is unique to your install and needed to join the other kubernetes nodes.
 
+
 kubeadm join 10.0.100.64:6443 --token 1alw8x.4nd5ay8s4dlrt6fd --discovery-token-ca-cert-hash sha256:88510a3f8754051c648ad70fe180bc68fa66a2bad03ff7a72606d8403837d154
+
 Now on the other 3 nodes run the kubeadm join command.  As before make sure you don’t have any preflight errors other than unsupported kernel version.  like on the master you will need ipv4 forwarding on, swap disabled, docker enabled and started, and kubelet enabled and started.
+
 once this is done you should be able to log into the kubernetes master and do 
 kubectl get nodes
+
 NAME    STATUS   ROLES    AGE     VERSION
+
 kube1   Ready    <none>   3h20m   v1.13.5
+  
 kube2   Ready    <none>   3h1m    v1.13.5
+  
 kube3   Ready    <none>   136m    v1.13.5
+  
 kube4   Ready    master   21h     v1.13.5
+
 
 If any show as not ready you can run
 kubectl describe nodes
@@ -322,15 +361,25 @@ to get an idea of what’s going wrong
 
 
 Blinkstick commands:
+
 Set blinksticks to light led on both sides:
+
 ansible -i inventory all -a "blinkstick --set-mode 3" -b
+
 Variety of color commands:
+
 ansible -i inventory all -a "blinkstick blue" 
+
 ansible -i inventory all -a "blinkstick --pulse orange" 
+
 ansible -i inventory all -a "blinkstick --pulse purple" 
+
 ansible -i inventory all -a "blinkstick blue" --forks 1
+
 ansible -i inventory all -a "blinkstick purple" --forks 1
+
 ansible -i inventory all -a "blinkstick purple" --forks 2
+
 
 
 
@@ -340,32 +389,41 @@ ansible -i inventory all -a "blinkstick purple" --forks 2
 Some handy commands:
 
 Report all live IP addresses on the 10.0.100.x subnet
+
 nmap -sn 10.0.100.0/24
 
 
 Reboot all of inventory
+
 ansible all -i inventory -m shell -a "sleep 1s; shutdown -r now" -b -B 60 -P 0
 
 Get current disk usage.
+
 $ ansible all -i inventory -a "df -h"
 
 Get current memory usage.
+
 $ ansible all -i inventory -a "free -m"
 
 Reboot all the Pis.
+
 $ ansible all -i inventory -m shell -a "sleep 1s; shutdown -r now" -b -B 60 -P 0
 
 
 install package
+
 ansible -i inventory all -m apt -a "name=python-dev state=present" -b
 
 Shut down all the Pis.
+
 $ ansible all -i inventory -m shell -a "sleep 1s; shutdown -h now" -b -B 60 -P 0
 
 Equivalent of “apt update ; apt upgrade”
+
 ansible -i inventory -m apt -a "upgrade=yes update_cache=yes" -b all
 
 Equivalent of pip install openshift
+
 ansible -i inventory -m pip -a "name=openshift" all -b 
 
 
