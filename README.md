@@ -23,26 +23,10 @@ to configure NAT on fedora workstation:
 sysctl -w net.ipv4.ip_forward=1
 
 nat-script: - run this script as root on fedora workstation to setup iptables
-#!/bin/sh
-INTIF="enp0s20f0u5u3u1"
-EXTIF="enp0s31f6"
-/sbin/depmod -a
-/sbin/modprobe ip_tables
-/sbin/modprobe ip_conntrack
-/sbin/modprobe ip_conntrack_ftp
-/sbin/modprobe ip_conntrack_irc
-/sbin/modprobe iptable_nat
-/sbin/modprobe ip_nat_ftp
-iptables -P INPUT ACCEPT
-iptables -F INPUT
-iptables -P OUTPUT ACCEPT
-iptables -F OUTPUT
-iptables -P FORWARD DROP
-iptables -F FORWARD
-iptables -t nat -F
-iptables -A FORWARD -i $EXTIF -o $INTIF -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A FORWARD -i $INTIF -o $EXTIF -j ACCEPT
-iptables -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
+
+https://github.com/edhaynes/fedora-iot-raspberry-pi-kubernetes/blob/master/nat.sh
+
+
 
 I then installed dhcpd on fedora
 
@@ -66,18 +50,26 @@ Report all live IP addresses on the 10.0.100.x subnet
 nmap -sn 10.0.100.0/24
 
 nmap -sn 10.0.100.0/24
+
 Starting Nmap 7.70 ( https://nmap.org ) at 2019-07-10 16:26 EDT
+
 Nmap scan report for 10.0.100.1
 Host is up (0.00091s latency).
+
 Nmap scan report for kube1 (10.0.100.61)
 Host is up (0.0013s latency).
+
 Nmap scan report for kube2 (10.0.100.62)
 Host is up (0.0012s latency).
+
 Nmap scan report for kube3 (10.0.100.63)
 Host is up (0.0011s latency).
+
 Nmap scan report for kube4 (10.0.100.64)
 Host is up (0.0010s latency).
+
 Nmap done: 256 IP addresses (5 hosts up) scanned in 2.73 seconds
+
 
 Figure out the mac addressses of the raspberry pis to populate dhcp server configuration
 
