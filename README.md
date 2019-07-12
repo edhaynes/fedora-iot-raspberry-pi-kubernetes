@@ -5,15 +5,16 @@ This is a cheap 4 node raspberry pi kubernetes cluster, mostly inspired by geerl
 My goal was to start learning ansible and kubernetes using the pis as a sandbox.  I also wanted to use fedora-iot instead of raspian, as fedora-iot uses the whole “immutable-os” concept from core-os - a lot of things to learn on such a cheap little system.  
 The BOM is below, also add four 32gb microsd cards, I used samsung EVO plus - don’t use el-cheapo microsd cards or things will be painfully slow.  I didn’t bother to install the cooling fans as the PIs don’t seem to have any heat issues running a variety of things this last month.  Entire thing can be built for <$250 assuming you use a random switch you have laying around.
 Also I bought 4 blinkstick nanos… I wish they were a bit less expensive and there was a distributor in the US, but I paid the 15 pounds British and they shipped them internationally.  These I want to use to have a visual representation of what state each node is in.
-
+BOM:
+https://github.com/edhaynes/fedora-iot-raspberry-pi-kubernetes/blob/master/Screenshot%20from%202019-07-10%2011-47-22.png
 
 
 
 
 
 This is what the topology looks like, I’m using my fedora workstation as a jumphost and DHCP/NAT server for the PIs.
+https://github.com/edhaynes/fedora-iot-raspberry-pi-kubernetes/blob/master/sl7OQAZtIKae03_w45lOzCQ.png
 
-https://github.com/edhaynes/fedora-iot-raspberry-pi-kubernetes/blob/master/Screenshot%20from%202019-07-10%2011-47-22.png
 
 Fedora-iot is great, though I do wish there wasn’t the requirement for keyboard configuration on the first boot.  It has everything you need to run containers and I’ve already been saved by rolling back a bad change that bricked the system (an incorrect edit in SELinux file).
 
