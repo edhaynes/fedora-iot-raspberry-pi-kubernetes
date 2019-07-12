@@ -13,6 +13,7 @@ Also I bought 4 blinkstick nanos… I wish they were a bit less expensive and th
 
 This is what the topology looks like, I’m using my fedora workstation as a jumphost and DHCP/NAT server for the PIs.
 
+https://github.com/edhaynes/fedora-iot-raspberry-pi-kubernetes/blob/master/Screenshot%20from%202019-07-10%2011-47-22.png
 
 Fedora-iot is great, though I do wish there wasn’t the requirement for keyboard configuration on the first boot.  It has everything you need to run containers and I’ve already been saved by rolling back a bad change that bricked the system (an incorrect edit in SELinux file).
 
