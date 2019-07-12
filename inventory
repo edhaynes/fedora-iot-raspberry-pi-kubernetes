@@ -1,0 +1,7 @@
+[pis]
+kube1
+kube2
+kube3
+kube4
+[pis:vars]
+ansible_ssh_user=pi

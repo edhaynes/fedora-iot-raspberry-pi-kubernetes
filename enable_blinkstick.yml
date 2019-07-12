@@ -1,0 +1,15 @@
+---
+- hosts: all
+  tasks:
+    - pip:
+        name: blinkstick
+        state: present
+        extra_args: --user
+        executable: pip
+    - shell:
+        ~/.local/bin/blinkstick --add-udev-rule
+      become: yes
+    - shell:
+        ~pi/.local/bin/blinkstick green
+      become: yes
+

@@ -1,0 +1,20 @@
+---
+- hosts: all
+  tasks:
+    - systemd:
+       state: stopped
+       name: zram-swap.service
+    - shell:
+       systemctl enable docker.service
+    - shell:
+       systemctl enable kubelet.service
+    - systemd:
+       state: started
+       name: docker
+    - systemd:
+       state: started
+       name: kubelet
+    - shell:
+       systemctl disable zram-swap.service
+    - shell:
+       sysctl -w net.ipv4.ip_forward=1

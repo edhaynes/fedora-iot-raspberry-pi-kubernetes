@@ -1,0 +1,22 @@
+---
+- hosts: all
+  tasks:
+    - authorized_key:
+        user: pi
+        state: present
+        key: "{{ lookup('file', '/home/ehaynes/.ssh/id_rsa.pub') }}"
+
+    - name: install required packages
+
+      become: true
+      
+#install these on separate lines because if it's installed already command will fail
+      shell: |                           
+       rpm-ostree update 
+       rpm-ostree install python python-pip
+       rpm-ostree install kubernetes-kubeadm
+       rpm-ostree install docker
+       rpm-ostree install ethtool
+       rpm-ostree install tc
+       
+ 
